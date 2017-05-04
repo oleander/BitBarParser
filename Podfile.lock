@@ -1,0 +1,21 @@
+PODS:
+  - FootlessParser (2.0.6)
+  - Nimble (6.1.0)
+  - Quick (1.1.0)
+  - SwiftCheck (0.8.0)
+
+DEPENDENCIES:
+  - FootlessParser
+  - Nimble
+  - Quick
+  - SwiftCheck
+
+SPEC CHECKSUMS:
+  FootlessParser: b398f10654ea8aab5305ca0f9025c9b25a8a2562
+  Nimble: c53e6903fee94041b90ded74f135820437d8bf59
+  Quick: dafc587e21eed9f4cab3249b9f9015b0b7a7f71d
+  SwiftCheck: b9e20cd4088a534907fedb2d11d095f9d5fef1dc
+
+PODFILE CHECKSUM: 77f65cc4e4a46be491357ae8100aeabaf8a71f14
+
+COCOAPODS: 1.2.1
