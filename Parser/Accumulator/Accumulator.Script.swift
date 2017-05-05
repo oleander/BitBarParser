@@ -1,11 +1,11 @@
 extension Accumulator {
   enum Script {
-    case foreground(String?, [Int: String], [Event])
+    case foreground(String?, [Event])
     case background(String?, [Int: String], [Event])
 
     init(foreground state: Bool) {
       if state {
-        self = .foreground(.none, [:], [])
+        self = .foreground(.none, [])
       } else {
         self = .background(.none, [:], [])
       }
@@ -25,8 +25,8 @@ extension Accumulator {
 
     internal func set(path: String) -> Result<Script> {
       switch self {
-      case let .foreground(.none, args, events):
-        return .output(.foreground(path, args, events))
+      case let .foreground(.none, events):
+        return .output(.foreground(path, events))
       case let .background(.none, args, events):
         return .output(.background(path, args, events))
       default:
@@ -35,13 +35,11 @@ extension Accumulator {
     }
 
     internal func set(arg: String, at index: Int) -> Result<Script> {
-      if has(index) {
-        return .error(["param\(index) has already been set"])
-      }
-
       switch self {
       case .foreground:
-        return .output(Script.foreground(path, set(index: index, value: arg), events))
+        return .output(Script.foreground(path, events))
+      case .background where has(index):
+        return .error(["param\(index)='...' has already been set"])
       case .background:
         return .output(.background(path, set(index: index, value: arg), events))
       }
@@ -49,13 +47,15 @@ extension Accumulator {
 
     internal func set(foreground state: Bool) -> Result<Script> {
       switch (self, state) {
-      case let (.background(path, args, events), true):
-        return .output(.foreground(path, args, events))
+      case let (.background(path, args, events), true) where args.isEmpty:
+        return .output(.foreground(path, events))
+      case (.background, true):
+        return .error(["paramx='...' not allowed when terminal=true"])
       case (.foreground, true):
         return .output(self)
       case (.background, false):
         return .output(self)
-      case let (.foreground(path, args, events), false):
+      case let (.foreground(path, events), false):
         return .output(.background(path, args, events))
       }
     }
@@ -69,13 +69,13 @@ extension Accumulator {
 
         /* refresh: true */
       case (.foreground, true):
-        return .output(.foreground(path, args, events + [.refresh]))
+        return .output(.foreground(path, events + [.refresh]))
       case (.background, true):
         return .output(.background(path, args, events + [.refresh]))
 
         /* refresh: false */
       case (.foreground, false):
-        return .output(.foreground(path, args, remove(.refresh)))
+        return .output(.foreground(path, remove(.refresh)))
       case (.background, false):
         return .output(.background(path, args, remove(.refresh)))
       }
@@ -83,8 +83,8 @@ extension Accumulator {
 
     internal func reduce() -> Result<Action.Script> {
       switch self {
-      case let .foreground(.some(path), args, events):
-        return .output(Action.Script.foreground(path, sort(args), events))
+      case let .foreground(.some(path), events):
+        return .output(Action.Script.foreground(path, events))
       case let .background(.some(path), args, events):
         return .output(.background(path, sort(args), events))
       default:
@@ -112,8 +112,8 @@ extension Accumulator {
       switch self {
       case let .background(path, args, events) where !has(event):
         return .output(.background(path, args, events + [event]))
-      case let .foreground(path, args, events) where !has(event):
-        return .output(.foreground(path, args, events + [event]))
+      case let .foreground(path, events) where !has(event):
+        return .output(.foreground(path, events + [event]))
       default:
         return .error(["Duplicate events, \(event) already exists in \(self)"])
       }
@@ -129,8 +129,8 @@ extension Accumulator {
       switch self {
       case let .background(_, args, _):
         return args
-      case let .foreground(_, args, _):
-        return args
+      case .foreground:
+        preconditionFailure("[Bug] foreground doesn't have any args")
       }
     }
 
@@ -138,7 +138,7 @@ extension Accumulator {
       switch self {
       case let .background(_, _, events):
         return events
-      case let .foreground(_, _, events):
+      case let .foreground(_, events):
         return events
       }
     }
@@ -147,7 +147,7 @@ extension Accumulator {
       switch self {
       case let .background(path, _, _):
         return path
-      case let .foreground(path, _, _):
+      case let .foreground(path, _):
         return path
       }
     }

@@ -15,32 +15,15 @@ extension Menu {
         case let (.output(text), .output(ps), .output(tails), .output(.nop)) where ps.isEmpty:
           return .text(text, tails)
         case let (.output, .output(params), .output, .output) where params.isEmpty:
-          return .error(["No action allowed for menu bar"])
+          return .error(["bash='...', href='...' and other params are not allowed in menu bar"])
         case (.output, .output, .output, .output):
-          return .error(["Params not allowed for menu bar"])
+          return .error(["Menu bar cannot have params, i.e 'Title|bash='...'"])
         case let (text, params, tails, action):
           return .error(text.errors + params.errors + tails.errors + action.errors)
         }
       case let .error(messages):
         return .error(messages)
       }
-    }
-
-    private static func failure<T>(from outputs: [Result<T>]) -> Menu.Head {
-      let errors = outputs.reduce([String]()) { acc, output in
-        switch output {
-        case let .error(messages):
-          return acc + messages
-        default:
-          return acc
-        }
-      }
-
-      if errors.isEmpty {
-        preconditionFailure("no errors")
-      }
-
-      return .error(errors)
     }
   }
 }

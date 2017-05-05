@@ -28,18 +28,27 @@ extension Raw.Param: CustomStringConvertible {
     }
   }
 
-  static let p1 = [bash_t, refresh_t, terminal_t].shuffle() + argument_t
-  static let p2 = [href_t, refresh_t].shuffle()
-  static let script = [p1, p2].one()
+  /* Background script, i.e bash='...', refresh=false, terminal=true, param1='...' */
+  static let background = [bash_t, refresh_t, Gen.pure(Param.terminal(false))].shuffle() + argument_t
+  /* Foreground script, i.e bash='...', refresh=false, terminal=false */
+  static let foreground = [bash_t, Gen.pure(Param.terminal(true))].shuffle()
+
+  /* A script, background or foreground */
+  static let script = [background, foreground].one()
+
+  static let clickOrRef = [[href_t, refresh_t].one()].shuffle()
+  
+  /* An action, i.e href='..', refresh=true */
+  static let action = [clickOrRef, script].one()
 
   static let textable = [size_t, font_t, length_t, color_t, emojize_t, ansi_t, trim_t,
     alternate_t, checked_t, dropdown_t].shuffle()
   static let textableish = [size_t, font_t, length_t, color_t, emojize_t, ansi_t, trim_t].shuffle()
 
-  static let text = textable + script
+  static let text = textable + action
 
   static let imageable = [image_t, alternate_t, checked_t, dropdown_t].shuffle()
-  static let image = imageable + script
+  static let image = imageable + action
 
   static let both  = [text, image].one()
 

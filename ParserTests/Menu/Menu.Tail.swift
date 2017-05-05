@@ -12,8 +12,8 @@ extension Menu.Tail: Parsable, Equatable {
     switch (lhs, rhs) {
     case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
       return t1 ==== t2 ^&&^ p1 ==== p2 ^&&^ m1 ==== m2 ^&&^ x1 ==== x2
-    case let (.error(m1), .error(m2)):
-      return m1 ==== m2
+    case let (.error(m1, r1), .error(m2, r2)):
+      return m1 ==== m2 ^&&^ r1 ==== r2
     case let (.image(t1, p1, m1, x1), .image(t2, p2, m2, x2)):
       return t1 ==== t2 ^&&^ p1 ==== p2 ^&&^ m1 ==== m2 ^&&^ x1 ==== x2
     case (.separator, .separator):
@@ -27,8 +27,8 @@ extension Menu.Tail: Parsable, Equatable {
     switch (lhs, rhs) {
     case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
       return t1 == t2 && p1 == p2 && m1 == m2 && x1 == x2
-    case let (.error(m1), .error(m2)):
-      return m1 == m2
+    case let (.error(m1, r1), .error(m2, r2)):
+      return m1 == m2 && r1 == r2
     case let (.image(t1, p1, m1, x1), .image(t2, p2, m2, x2)):
       return t1 == t2 && p1 == p2 && m1 == m2 && x1 == x2
     case (.separator, .separator):
@@ -79,8 +79,8 @@ extension Menu.Tail: Parsable, Equatable {
         "\n",
         tail(for: tails, at: level)
       ].joined()
-    case let .error(messages):
-      return "[Error] Found \(messages.count) errors"
+    case let .error(messages, row):
+      preconditionFailure("[Error@\(row)] \(messages.joined(separator: "<|>"))")
     case .separator:
       return "-" + "\n"
     }
