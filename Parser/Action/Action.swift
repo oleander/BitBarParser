@@ -1,4 +1,3 @@
-
 public enum Action {
   case nop
   case refresh

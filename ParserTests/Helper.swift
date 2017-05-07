@@ -182,7 +182,6 @@ func ==== (menuParams: [Menu.Param], rawParams: [Raw.Param]) -> Property {
   return true <?> "menu params == raw params"
 }
 
-
 func ==== (menuTails: [Menu.Tail], rawTails: [Raw.Tail]) -> Property {
   for (menuTail, rawTail) in zip(menuTails, rawTails) {
     switch (menuTail, rawTail) {

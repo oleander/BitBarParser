@@ -10,7 +10,6 @@ extension Raw.Tail: Arbitrary, Equatable, CustomStringConvertible {
   typealias Tail = Raw.Tail
   typealias Param = Raw.Param
 
-
   public static var arbitrary: Gen<Tail> {
     return Gen<(String, [Param])>.zip(string, Param.both).map {
       return .node($0, $1, [])

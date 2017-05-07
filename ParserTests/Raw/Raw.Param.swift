@@ -21,7 +21,7 @@ extension Raw.Param: CustomStringConvertible {
   static let image_t: Gen<Param> = Image.arbitrary.map(Param.image)
   static let range = Gen<Int>.choose((0, 10))
   static let argument_t: Gen<[Param]> = range.flatMap { (lower: Int) in
-    return range.suchThat{ $0 >= lower }.flatMap { (upper: Int) in
+    return range.suchThat { $0 >= lower }.flatMap { (upper: Int) in
       return (lower...upper).map { int in
         return string.map { Param.argument(int, $0) }
       }.shuffle()
