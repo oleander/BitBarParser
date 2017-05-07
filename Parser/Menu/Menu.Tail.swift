@@ -16,8 +16,6 @@ extension Menu {
         return .error(["Separators cannot have params, i.e ---|bash='...'"], row)
       case let .node("-", _, tails) where !tails.isEmpty:
         return .error(["Separators cannot have sub menus"], row)
-      case let .node("", params, tails):
-        return reduce(.node("[Empty]", params, tails), at: row)
         /* Valid states */
       case .node("-", _, _):
         return .separator

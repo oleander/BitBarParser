@@ -14,7 +14,7 @@ let positive = Int.arbitrary.suchThat { $0 >= 0 }
 let hexValue: Gen<String> = Gen<Int>.choose((1, 6)).flatMap {
   return toString(upperAF, loweraf, numeric, size: $0)
 }
-let string = String.any(min: 1, max: 15).suchThat { !$0.hasPrefix("-") }
+let string = String.any(min: 0, max: 15).suchThat { !$0.hasPrefix("-") }
 let natural = Int.arbitrary.suchThat { $0 > 0 }
 let small = Int.arbitrary.suchThat { $0 >= 0 && $0 <= 500 }
 let float = Gen<(Int, Int)>.zip(small, small).map {
