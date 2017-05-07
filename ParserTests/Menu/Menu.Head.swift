@@ -19,17 +19,6 @@ extension Menu.Head: Parsable, Equatable {
     }
   }
 
-  public static func ==== (lhs: Menu.Head, rhs: Menu.Head) -> Property {
-    switch (lhs, rhs) {
-    case let (.text(t1, m1), .text(t2, m2)):
-      return t1 ==== t2 ^&&^ m1 ==== m2
-    case let (.error(m1), .error(m2)):
-      return m1 ==== m2
-    default:
-      return false <?> "no match for \(lhs) & \(rhs)"
-    }
-  }
-
   public static func == (lhs: Menu.Head, rhs: Menu.Head) -> Bool {
     switch (lhs, rhs) {
     case let (.text(t1, p1), .text(t2, p2)):
@@ -41,29 +30,25 @@ extension Menu.Head: Parsable, Equatable {
     }
   }
 
-  func has(_ param: Raw.Param) -> Bool {
-    switch param {
-    case .length: fallthrough
-    case .size: fallthrough
-    case .color: fallthrough
-    case .font: fallthrough
-    case .size: fallthrough
-    case .trim: fallthrough
-    case .ansi: fallthrough
-    case .emojize:
-      switch self {
-      case let .text(text, _):
-        return text.has(param)
-      default:
-        return true
-      }
+  static func ==== (head: Menu.Head, raw: Raw.Head) -> Property {
+    switch (head, raw) {
+    case let (.text(text, tails1), .node(title, params, tails2)):
+      return text ==== title ^&&^ text ==== params ^&&^ tails1 ==== tails2
+    case let (.error(m1), .error(m2)):
+      return m1 ==== m2
     default:
-      return true
+      return false <?> "\(head) != \(raw)"
+    }
+  }
+
+  static func ==== (lhs: Menu.Head, rhs: Menu.Head) -> Property {
+    switch (lhs, rhs) {
+    case let (.text(t1, m1), .text(t2, m2)):
+      return t1 ==== t2 ^&&^ m1 ==== m2
+    case let (.error(m1), .error(m2)):
+      return m1 ==== m2
+    default:
+      return false <?> "no match for \(lhs) & \(rhs)"
     }
   }
 }
-
-func ==== (lhs: [Menu.Head], rhs: [Menu.Head]) -> Property {
-  return (lhs == rhs) <?> "ok"
-}
-

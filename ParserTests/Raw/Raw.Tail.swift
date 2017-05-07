@@ -12,11 +12,9 @@ extension Raw.Tail: Arbitrary, Equatable, CustomStringConvertible {
 
 
   public static var arbitrary: Gen<Tail> {
-    let n1: Gen<Tail> = Gen<(String, [Param])>.zip(string, Param.both).map {
+    return Gen<(String, [Param])>.zip(string, Param.both).map {
       return .node($0, $1, [])
     }
-
-    return [n1].one().resize(300)
   }
 
   var output: String { return toString(0) }

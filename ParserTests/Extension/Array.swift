@@ -17,5 +17,4 @@ extension Array {
     if count <= index { return nil }
     return self[index]
   }
-
 }

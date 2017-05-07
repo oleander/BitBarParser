@@ -37,7 +37,7 @@ extension Raw.Param: CustomStringConvertible {
   static let script = [background, foreground].one()
 
   static let clickOrRef = [[href_t, refresh_t].one()].shuffle()
-  
+
   /* An action, i.e href='..', refresh=true */
   static let action = [clickOrRef, script].one()
 
@@ -95,39 +95,3 @@ extension Raw.Param: CustomStringConvertible {
     return output.inspected()
   }
 }
-
-func filter(_ param: Raw.Param) -> Bool {
-  switch param {
-  case let .emojize(state):
-    return state
-  case let .alternate(state):
-    return state
-  case let .trim(state):
-    return state
-  case let .ansi(state):
-    return state
-  case let .dropdown(state):
-    return state
-  case let .checked(state):
-    return state
-  case let .terminal(state):
-    return state
-  case let .refresh(state):
-    return state
-  default:
-    return true
-  }
-}
-
-// func ==== (lhs: [Raw.Param], rhs: [Raw.Param]) -> Property {
-//   let x = rhs.filter(filter)
-//   let y = lhs.filter(filter)
-//   for (index, el) in y.enumerated() {
-//     if x[index] != el {
-//       return false <?> "ok"
-//     }
-//   }
-//
-//   return x.count ==== y.count
-// }
-

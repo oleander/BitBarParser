@@ -26,4 +26,12 @@ extension Image: Parsable, Arbitrary {
   public static var arbitrary: Gen<Image> {
     return [b1, b2, u1, u2].one()
   }
+
+  static func ==== (image: Image, params: [Raw.Param]) -> Property {
+    if params.has(.image(image)) {
+      return true <?> "image"
+    }
+
+    return false <?> "image \(image) not found in \(params)"
+  }
 }

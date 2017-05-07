@@ -8,21 +8,6 @@ extension Menu.Tail: Parsable, Equatable {
   public var description: String { return output.inspected() }
   var output: String { return toString(0) }
 
-  public static func ==== (lhs: Menu.Tail, rhs: Menu.Tail) -> Property {
-    switch (lhs, rhs) {
-    case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
-      return t1 ==== t2 ^&&^ p1 ==== p2 ^&&^ m1 ==== m2 ^&&^ x1 ==== x2
-    case let (.error(m1, r1), .error(m2, r2)):
-      return m1 ==== m2 ^&&^ r1 ==== r2
-    case let (.image(t1, p1, m1, x1), .image(t2, p2, m2, x2)):
-      return t1 ==== t2 ^&&^ p1 ==== p2 ^&&^ m1 ==== m2 ^&&^ x1 ==== x2
-    case (.separator, .separator):
-      return true <?> "separator"
-    default:
-      return false <?> "no match for \(lhs) & \(rhs)"
-    }
-  }
-
   public static func == (lhs: Menu.Tail, rhs: Menu.Tail) -> Bool {
     switch (lhs, rhs) {
     case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
@@ -54,6 +39,7 @@ extension Menu.Tail: Parsable, Equatable {
         params.map { $0.output }.joined(separator: " "),
         " ",
         image.output,
+        "\n"
       ].joined()
     case let .image(image, params, tails, .nop):
       return [
@@ -83,6 +69,21 @@ extension Menu.Tail: Parsable, Equatable {
       preconditionFailure("[Error@\(row)] \(messages.joined(separator: "<|>"))")
     case .separator:
       return "-" + "\n"
+    }
+  }
+
+  static func ==== (lhs: Menu.Tail, rhs: Menu.Tail) -> Property {
+    switch (lhs, rhs) {
+    case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
+      return t1 ==== t2 ^&&^ p1 ==== p2 ^&&^ m1 ==== m2 ^&&^ x1 ==== x2
+    case let (.error(m1, r1), .error(m2, r2)):
+      return m1 ==== m2 ^&&^ r1 ==== r2
+    case let (.image(t1, p1, m1, x1), .image(t2, p2, m2, x2)):
+      return t1 ==== t2 ^&&^ p1 ==== p2 ^&&^ m1 ==== m2 ^&&^ x1 ==== x2
+    case (.separator, .separator):
+      return true <?> "separator"
+    default:
+      return false <?> "no match for \(lhs) & \(rhs)"
     }
   }
 

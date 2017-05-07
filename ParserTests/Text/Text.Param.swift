@@ -22,7 +22,7 @@ extension Text.Param: Parsable {
     }
   }
 
-  public static func ==== (lhs: Text.Param, rhs: Text.Param) -> Property {
+  static func ==== (lhs: Text.Param, rhs: Text.Param) -> Property {
     switch (lhs, rhs) {
     case let (.font(f1), .font(f2)):
       return f1 ==== f2

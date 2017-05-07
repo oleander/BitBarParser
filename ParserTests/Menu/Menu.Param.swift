@@ -14,17 +14,6 @@ extension Menu.Param: Parsable {
     }
   }
 
-  public static func ==== (lhs: Menu.Param, rhs: Menu.Param) -> Property {
-    switch (lhs, rhs) {
-    case (.alternate, .alternate):
-      return true <?> "alternate"
-    case (.checked, .checked):
-      return true <?> "checked"
-    default:
-      return false <?> "no match for \(lhs) & \(rhs)"
-    }
-  }
-
   public static func == (lhs: Menu.Param, rhs: Menu.Param) -> Bool {
     switch (lhs, rhs) {
     case (.alternate, .alternate):
@@ -33,6 +22,17 @@ extension Menu.Param: Parsable {
       return true
     default:
       return false
+    }
+  }
+
+  static func ==== (lhs: Menu.Param, rhs: Menu.Param) -> Property {
+    switch (lhs, rhs) {
+    case (.alternate, .alternate):
+      return true <?> "alternate"
+    case (.checked, .checked):
+      return true <?> "checked"
+    default:
+      return false <?> "no match for \(lhs) & \(rhs)"
     }
   }
 }

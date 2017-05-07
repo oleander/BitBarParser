@@ -30,8 +30,10 @@ class Pro {
     } catch ParseError<Character>.Mismatch(let remainder, let expected, let actual) {
       let index = input.index(input.endIndex, offsetBy: -Int(remainder.count))
       let (range, _, _) = position(of: index, in: input)
-      let line = input[range.lowerBound..<range.upperBound]
-        .trimmingCharacters(in: CharacterSet.newlines)
+      var line = input[range.lowerBound..<range.upperBound]
+      if !line.isEmpty {
+        line = line.trimmingCharacters(in: CharacterSet.newlines)
+      }
       return .failure(.mismatch(line, input, String(remainder), expected, actual))
     } catch CountError.NegativeCount {
       return .failure(.negative)

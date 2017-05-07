@@ -8,14 +8,15 @@ extension Raw.Head: Arbitrary, Equatable, CustomStringConvertible {
   typealias Tail = Raw.Tail
   typealias Param = Raw.Param
 
+  private static let tail = Tail.arbitrary.proliferate
+  private static let text = Param.textableish
+
   public static var arbitrary: Gen<Head> {
-    let n1: Gen<Head> = Gen<(String, [Param], [Tail])>.zip(string, Param.textableish, Tail.arbitrary.proliferate).map { title, params, tails in
-      return tails.enumerated().reduce(.node(title, params, [])) { head, tail in
-        return head.add(node: tail.1, level: tail.0)
+    return Gen<(String, [Param], [Tail], [Tail])>.zip(string, text, tail, tail).map { title, params, t1, t2 in
+      return Array(zip(t1, t2)).enumerated().reduce(.node(title, params, [])) { head, tail in
+        return head.add(node: tail.1.0, level: tail.0).add(node: tail.1.1, level: tail.0)
       }
     }
-
-    return n1
   }
 
   var output: String {
@@ -81,20 +82,6 @@ extension Raw.Head: Arbitrary, Equatable, CustomStringConvertible {
       return m1 == m2
     default:
       return false
-    }
-  }
-
-  public static func ==== (lhs: Raw.Head, rhs: Raw.Head) -> Property {
-    switch (lhs, rhs) {
-    case let (.node(_, p1, m1), .node(_, p2, m2)) where lhs.hasImage() && rhs.hasImage():
-      return p1.filter(filter) ==== p2.filter(filter) ^&&^ m1 ==== m2
-    case let (.node(t1, p1, m1), .node(t2, p2, m2)):
-      return t1 ==== t2 ^&&^ p1.filter(filter) ==== p2.filter(filter) ^&&^ m1 ==== m2
-
-    case let (.error(m1), .error(m2)):
-      return m1 ==== m2
-    default:
-      return false <?> "no match for \(lhs) & \(rhs)"
     }
   }
 

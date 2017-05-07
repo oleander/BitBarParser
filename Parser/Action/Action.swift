@@ -26,8 +26,10 @@ public enum Action {
       return .output(.href(url, events))
     case .nop:
       return .output(.nop)
-    case .refresh:
+    case .refresh(true):
       return .output(.refresh)
+    default:
+      return .output(.nop)
     }
   }
 
