@@ -272,8 +272,8 @@ func ==== (textParams: [Text.Param], rawParams: [Raw.Param]) -> Property {
 var args: CheckerArguments {
   if isTravis() {
     return CheckerArguments(
-      maxAllowableSuccessfulTests: 1000,
-      maxTestCaseSize: 1000
+      maxAllowableSuccessfulTests: 700,
+      maxTestCaseSize: 700
     )
   }
 
