@@ -87,7 +87,7 @@ extension Raw.Param: CustomStringConvertible {
     case let .argument(index, value):
       return "param\(index)=\(value.quoted())"
     default:
-      return "whats this??: \(self)"
+      preconditionFailure("Unknown param \(param)")
     }
   }
 
