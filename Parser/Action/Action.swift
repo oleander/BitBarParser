@@ -5,30 +5,25 @@ public enum Action {
   case href(String, [Event])
 
   static func lift(_ script: Result<Script>) -> Result<Action> {
-    switch script {
-    case let .error(message):
-      return .error(message)
-    case let .output(script):
-      return .output(.script(script))
-    }
+    return script.map(Action.script)
   }
 
   private static func reduce(_ acc: Accumulator) -> Result<Action> {
     switch acc {
-    case let .error(message):
-      return .error(message)
+    case let .bad(message):
+      return .bad(message)
     case let .script(script):
       return lift(script.reduce())
     case .href(.none, _):
-      return .error(["Href not set"])
+      return .bad(["Href not set"])
     case let .href(.some(url), events):
-      return .output(.href(url, events))
+      return .good(.href(url, events))
     case .nop:
-      return .output(.nop)
+      return .good(.nop)
     case .refresh(true):
-      return .output(.refresh)
+      return .good(.refresh)
     default:
-      return .output(.nop)
+      return .good(.nop)
     }
   }
 
@@ -36,14 +31,14 @@ public enum Action {
     return reduce(params.reduce(.nop) { acc, param in
       switch (acc, param) {
         /* Special case */
-      case (.error, _):
+      case (.bad, _):
         return acc
       case (.nop, _):
         return acc.select(param)
 
         /* Script */
       case (.script, .href):
-        return .error(["Script != href"])
+        return .bad(["Script != href"])
       case let (.script(script), .bash(path)):
         return lift(script.set(path: path))
       case let (.script(script), .argument(index, value)):
@@ -57,13 +52,13 @@ public enum Action {
 
         /* Href - failures */
       case (.href, .bash):
-        return .error(["Href and bash cannot be defined together"])
+        return .bad(["Href and bash cannot be defined together"])
       case (.href(.some, _), .href):
-        return .error(["Href has already been defined"])
+        return .bad(["Href has already been defined"])
       case let (.href, .argument(index, _)):
-        return .error(["param\(index) can't be defined with href"])
+        return .bad(["param\(index) can't be defined with href"])
       case let (.href(_, params), .refresh(true)) where params.has(.refresh):
-        return .error(["Refresh can only be defined once"])
+        return .bad(["Refresh can only be defined once"])
 
         /* Href - ok */
       case let (.href(_, params), .href(url)):
@@ -75,7 +70,7 @@ public enum Action {
 
         /* Refresh - failure */
       case (.refresh, .refresh):
-        return .error(["Refresh can only be defined once"])
+        return .bad(["Refresh can only be defined once"])
 
         /* Refresh - ok */
       case let (.refresh(true), .argument(index, value)):
@@ -102,9 +97,9 @@ public enum Action {
 
   static func lift(_ script: Result<Accumulator.Script>) -> Accumulator {
     switch script {
-    case let .error(message):
-      return .error(message)
-    case let .output(script):
+    case let .bad(message):
+      return .bad(message)
+    case let .good(script):
       return .script(script)
     }
   }

@@ -11,10 +11,8 @@ extension Text.Param: Parsable {
       return "ansi=true"
     case .trim:
       return "trim=true"
-    case let .font(name):
-      return "font=\(name.quoted())"
-    case let .size(value):
-      return "size=\(value)"
+    case let .font(font):
+      return font.output
     case let .length(value):
       return "length=\(value)"
     case let .color(color):
@@ -30,8 +28,6 @@ extension Text.Param: Parsable {
       return l1 ==== l2
     case let (.color(c1), .color(c2)):
       return c1 ==== c2
-    case let (.size(s1), .size(s2)):
-      return s1 ==== s2
     case (.emojize, .emojize):
       return true <?> "emojize"
     case (.ansi, ansi):

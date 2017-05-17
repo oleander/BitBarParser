@@ -5,9 +5,9 @@ public enum Image: Equatable {
   static func reduce(_ params: [Raw.Param]) -> Result<Image> {
     switch image(in: params) {
     case let .some(image):
-      return .output(image)
+      return .good(image)
     default:
-      return .error(["no image"])
+      return .bad(["no image"])
     }
   }
 

@@ -26,37 +26,37 @@ extension Accumulator {
     internal func set(path: String) -> Result<Script> {
       switch self {
       case let .foreground(.none, events):
-        return .output(.foreground(path, events))
+        return .good(.foreground(path, events))
       case let .background(.none, args, events):
-        return .output(.background(path, args, events))
+        return .good(.background(path, args, events))
       default:
-        return .error(["Path has already been set"])
+        return .bad(["Path has already been set"])
       }
     }
 
     internal func set(arg: String, at index: Int) -> Result<Script> {
       switch self {
       case .foreground:
-        return .output(Script.foreground(path, events))
+        return .good(Script.foreground(path, events))
       case .background where has(index):
-        return .error(["param\(index)='...' has already been set"])
+        return .bad(["param\(index)='...' has already been set"])
       case .background:
-        return .output(.background(path, set(index: index, value: arg), events))
+        return .good(.background(path, set(index: index, value: arg), events))
       }
     }
 
     internal func set(foreground state: Bool) -> Result<Script> {
       switch (self, state) {
       case let (.background(path, args, events), true) where args.isEmpty:
-        return .output(.foreground(path, events))
+        return .good(.foreground(path, events))
       case (.background, true):
-        return .error(["paramx='...' not allowed when terminal=true"])
+        return .bad(["paramx='...' not allowed when terminal=true"])
       case (.foreground, true):
-        return .output(self)
+        return .good(self)
       case (.background, false):
-        return .output(self)
+        return .good(self)
       case let (.foreground(path, events), false):
-        return .output(.background(path, args, events))
+        return .good(.background(path, args, events))
       }
     }
 
@@ -65,30 +65,30 @@ extension Accumulator {
         /* Bad */
       case (.foreground, true) where has(.refresh): fallthrough
       case (.background, true) where has(.refresh):
-        return .error(["Refresh has already been set"])
+        return .bad(["Refresh has already been set"])
 
         /* refresh: true */
       case (.foreground, true):
-        return .output(.foreground(path, events + [.refresh]))
+        return .good(.foreground(path, events + [.refresh]))
       case (.background, true):
-        return .output(.background(path, args, events + [.refresh]))
+        return .good(.background(path, args, events + [.refresh]))
 
         /* refresh: false */
       case (.foreground, false):
-        return .output(.foreground(path, remove(.refresh)))
+        return .good(.foreground(path, remove(.refresh)))
       case (.background, false):
-        return .output(.background(path, args, remove(.refresh)))
+        return .good(.background(path, args, remove(.refresh)))
       }
     }
 
     internal func reduce() -> Result<Action.Script> {
       switch self {
       case let .foreground(.some(path), events):
-        return .output(Action.Script.foreground(path, events))
+        return .good(Action.Script.foreground(path, events))
       case let .background(.some(path), args, events):
-        return .output(.background(path, sort(args), events))
+        return .good(.background(path, sort(args), events))
       default:
-        return .error(["The bash param is not set: \(self)"])
+        return .bad(["The bash param is not set: \(self)"])
       }
     }
 
@@ -111,11 +111,11 @@ extension Accumulator {
     func add(event: Event) -> Result<Script> {
       switch self {
       case let .background(path, args, events) where !has(event):
-        return .output(.background(path, args, events + [event]))
+        return .good(.background(path, args, events + [event]))
       case let .foreground(path, events) where !has(event):
-        return .output(.foreground(path, events + [event]))
+        return .good(.foreground(path, events + [event]))
       default:
-        return .error(["Duplicate events, \(event) already exists in \(self)"])
+        return .bad(["Duplicate events, \(event) already exists in \(self)"])
       }
     }
 

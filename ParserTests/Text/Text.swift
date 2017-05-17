@@ -29,10 +29,24 @@ extension Text: Parsable, Equatable {
     }
   }
 
+  static func == (text: Text, title: String) -> Bool {
+    switch text {
+    case let .normal(other, _):
+      return other == title
+    }
+  }
+
   static func ==== (text: Text, params: [Raw.Param]) -> Property {
     switch text {
     case let .normal(_, other):
       return other ==== params
+    }
+  }
+
+  static func == (text: Text, params: [Raw.Param]) -> Bool {
+    switch text {
+    case let .normal(_, other):
+      return other == params
     }
   }
 

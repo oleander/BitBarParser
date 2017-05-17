@@ -2,7 +2,7 @@ enum Accumulator {
   case script(Script)
   case refresh(Bool)
   case href(String?, [Event])
-  case error([String])
+  case bad([String])
   case nop
 
   func select(_ param: Raw.Param) -> Accumulator {

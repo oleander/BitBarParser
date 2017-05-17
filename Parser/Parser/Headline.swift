@@ -1,4 +1,5 @@
 import FootlessParser
+typealias Line = (level: Int, title: String, params: [Raw.Param])
 
 extension Pro {
   internal static let ws = zeroOrMore(whitespace)
@@ -6,13 +7,20 @@ extension Pro {
   typealias Head = Raw.Head
   typealias Tail = Raw.Tail
 
-  // TODO: Rename
   static var output: P<Head> {
-    return ({ line in
-      return .node(line.1, line.2, [])
-    } <^> line) >>- { head in
-      optional(string("---\n") *> menu(using: head), otherwise: head)
-    }
+    return header(using: .node([], []))
+  }
+
+  static func header(using head: Head) -> P<Head> {
+    let aLine: P<Line?> = string("---\n") *> pure(nil)
+    let xLine: P<Line?> = { a -> Line? in a} <^> line
+    return (aLine <|> xLine) >>- { (maybe: Line?) in
+      if let liner = maybe {
+        return header(using: head.append(liner))
+      }
+
+      return menu(using: head)
+    } <|> pure(head)
   }
 
   private static func menu(using head: Head) -> P<Head> {
@@ -43,7 +51,7 @@ extension Pro {
     } <^> line
   }
 
-  internal static var line: P<(level: Int, title: String, params: [Raw.Param])> {
+  internal static var line: P<Line> {
     return curry({ ($0, $1, $2) }) <^> level <*> text <*> params
   }
 

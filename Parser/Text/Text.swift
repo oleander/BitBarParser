@@ -2,34 +2,12 @@ public enum Text {
   case normal(String, [Param])
 
   static func reduce(_ title: String, _ params: [Raw.Param]) -> Result<Text> {
-    switch Text.Param.reduce(params) {
-    case let .output(params):
-      return .output(.normal(title, params))
-    case let .error(message):
-      return .error(message)
-    }
+    return Text.Param.reduce(params).map { .normal(title, $0) }
   }
 
-  static func reduce(_ params: [Raw.Param]) -> [Text.Param] {
-    return params.reduce([]) { acc, param in
-      switch param {
-      case .trim(true):
-        return acc + [.trim]
-      case .ansi(true):
-        return acc + [.ansi]
-      case .emojize(true):
-        return acc + [.emojize]
-      case let .font(name):
-        return acc + [.font(name)]
-      case let .size(value):
-        return acc + [.size(value)]
-      case let .length(value):
-        return acc + [.length(value)]
-      case let .color(color):
-        return acc + [.color(color)]
-      default:
-        return acc
-      }
+  static func reduce(_ pairs: [(String, [Raw.Param])]) -> Result<[Text]> {
+    return pairs.reduce(.good([])) { acc, pair in
+      acc +| Text.reduce(pair.0, pair.1)
     }
   }
 }

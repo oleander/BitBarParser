@@ -4,6 +4,7 @@ import SwiftCheck
 func toString(_ gens: Gen<Character>..., size: Int = 3) -> Gen<String> {
   return Gen<Character>.one(of: gens).proliferateRange(1, size).map { String.init($0) }
 }
+
 let low: Gen<Character> = Gen<Character>.fromElements(in: "a"..."z")
 let up: Gen<Character> = Gen<Character>.fromElements(in: "A"..."Z")
 let numeric: Gen<Character> = Gen<Character>.fromElements(in: "0"..."9")
@@ -208,7 +209,7 @@ func ==== (menuTails: [Menu.Tail], rawTails: [Raw.Tail]) -> Property {
       return text ==== title ^&&^ params1 ==== params2 ^&&^ tails1 ==== tails2 ^&&^ action ==== params2
     case let (.image(image, params1, tails1, action), .node(_, params2, tails2)):
       return image ==== params2 ^&&^ params1 ==== params2 ^&&^ tails1 ==== tails2 ^&&^ action ==== params2
-    case let (.error(m1, _), .error(m2)):
+    case let (.error(m1), .error(m2)):
       return m1 ==== m2
     case (.separator, .node("-", [], [])):
       return true <?> "separator"
@@ -228,13 +229,13 @@ func ==== (textParams: [Text.Param], rawParams: [Raw.Param]) -> Property {
   for rawParam in rawParams {
     let failed = false <?> "raw param \(rawParam) is missing from text params \(textParams)"
     switch rawParam {
-    case let .font(name) where !textParams.has(.font(name)):
+    case let .font(name) where !textParams.hasFont(name: name):
       return failed
     case let .length(value) where !textParams.has(.length(value)):
       return failed
     case let .color(color) where !textParams.has(.color(color)):
       return failed
-    case let .size(size) where !textParams.has(.size(size)):
+    case let .size(size) where !textParams.hasFont(size: size):
       return failed
     case let .emojize(state) where textParams.has(.emojize) != state:
       return failed
@@ -250,13 +251,12 @@ func ==== (textParams: [Text.Param], rawParams: [Raw.Param]) -> Property {
   for textParam in textParams {
     let failed = false <?> "text param \(textParam) not in raw params \(rawParams)"
     switch textParam {
-    case let .font(name) where !rawParams.has(.font(name)):
+    case let .font(font) where !rawParams.has(font: font):
       return failed
     case let .length(value) where !rawParams.has(.length(value)):
       return failed
     case let .color(color) where !rawParams.has(.color(color)):
       return failed
-    case let .size(value) where !rawParams.has(.size(value)): fallthrough
     case .emojize where !rawParams.has(.emojize(true)): fallthrough
     case .ansi where !rawParams.has(.ansi(true)): fallthrough
     case .trim where !rawParams.has(.trim(true)):
@@ -267,6 +267,50 @@ func ==== (textParams: [Text.Param], rawParams: [Raw.Param]) -> Property {
   }
 
   return true <?> "text params == raw params"
+}
+
+func == (textParams: [Text.Param], rawParams: [Raw.Param]) -> Bool {
+  for rawParam in rawParams {
+    let failed = false
+    switch rawParam {
+    case let .font(name) where !textParams.hasFont(name: name):
+      return failed
+    case let .length(value) where !textParams.has(.length(value)):
+      return failed
+    case let .color(color) where !textParams.has(.color(color)):
+      return failed
+    case let .size(size) where !textParams.hasFont(size: size):
+      return failed
+    case let .emojize(state) where textParams.has(.emojize) != state:
+      return failed
+    case let .ansi(state) where textParams.has(.ansi) != state:
+      return failed
+    case let .trim(state) where textParams.has(.trim) != state:
+      return failed
+    default:
+      break
+    }
+  }
+
+  for textParam in textParams {
+    let failed = false
+    switch textParam {
+    case let .font(font) where !rawParams.has(font: font):
+      return failed
+    case let .length(value) where !rawParams.has(.length(value)):
+      return failed
+    case let .color(color) where !rawParams.has(.color(color)):
+      return failed
+    case .emojize where !rawParams.has(.emojize(true)): fallthrough
+    case .ansi where !rawParams.has(.ansi(true)): fallthrough
+    case .trim where !rawParams.has(.trim(true)):
+      return failed
+    default:
+      break
+    }
+  }
+
+  return true
 }
 
 var runs: Int {

@@ -1,3 +1,4 @@
+@testable import Parser
 import SwiftCheck
 
 extension Array {
@@ -16,5 +17,27 @@ extension Array {
   func get(at index: Int) -> Element? {
     if count <= index { return nil }
     return self[index]
+  }
+}
+
+extension Array where Element == Text.Param {
+  func hasFont(name: String) -> Bool {
+    for case let .font(font) in self where font == name {
+      return true
+    }
+    return false
+  }
+
+  func hasFont(size: Float) -> Bool {
+    for case let .font(font) in self where font == size {
+      return true
+    }
+    return false
+  }
+}
+
+extension Array where Element == Raw.Param {
+  func has(font: Font) -> Bool {
+    return font == self
   }
 }
