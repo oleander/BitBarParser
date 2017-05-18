@@ -11,5 +11,11 @@ extension Action {
     public var refreshAfterExec: Bool {
       return events.has(.refresh)
     }
+
+    init(path: (String), args: [String], events: [Event]) {
+      self.path = path
+      self.args = args
+      self.events = events
+    }
   }
 }
