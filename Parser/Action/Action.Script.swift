@@ -1,5 +1,5 @@
 extension Action {
-  public struct Script {
+  public struct Script: Equatable {
     public let path: String
     public let args: [String]
     internal let events: [Event]
@@ -16,6 +16,10 @@ extension Action {
       self.path = path
       self.args = args
       self.events = events
+    }
+
+    public static func == (lhs: Script, rhs: Script) -> Bool {
+      return lhs.path == rhs.path && lhs.args == rhs.args && lhs.events == rhs.events
     }
   }
 }

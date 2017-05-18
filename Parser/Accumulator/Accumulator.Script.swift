@@ -52,8 +52,10 @@ extension Accumulator {
         return .bad([])
       case (false, true, .none):
         return .bad([.argumentsSetButNotBash(sortedArgs)])
-      case (true, false, .none):
-        return .bad([.eventsSetButNotBash(events)])
+      // TODO: Not sure if this is valid
+       case (true, false, .none):
+//         return .bad([.eventsSetButNotBash(events)])
+        return .bad([])
       case (false, false, .none):
         return .bad([.argumentsAndEventsAreSetButNotBash(sortedArgs, events)])
       case let (_, _, .some(path)):
