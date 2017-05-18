@@ -69,10 +69,6 @@ func  ~= (lhs: [Raw.Param], rhs: [Raw.Param]) -> Bool {
   return lhs == rhs
 }
 
-//func  ~= (lhs: [Raw.Tail], rhs: [Raw.Tail]) -> Bool {
-//  return lhs == rhs
-//}
-
 func ==== (args: [String], params: [Raw.Param]) -> Property {
   if args.isEmpty {
     let noOfArgs = params.reduce(0) { acc, arg in
@@ -241,8 +237,12 @@ func ==== (textParams: [Text.Param], rawParams: [Raw.Param]) -> Property {
       return failed
     case let .length(value) where !textParams.has(.length(value)):
       return failed
-    case let .color(color) where !textParams.has(.color(color)):
+    case let .color(.name(name)) where !textParams.has(.color(.hex(Color.names[name]!))):
       return failed
+    case let .color(.hex(hex)):
+      let a = textParams.has(.color(.name(Color.hexColors[hex]!)))
+      let b = textParams.has(.color(.hex(hex)))
+      if !(a || b) { return failed }
     case let .size(size) where !textParams.hasFont(size: size):
       return failed
     case let .emojize(state) where textParams.has(.emojize) != state:
@@ -263,8 +263,10 @@ func ==== (textParams: [Text.Param], rawParams: [Raw.Param]) -> Property {
       return failed
     case let .length(value) where !rawParams.has(.length(value)):
       return failed
-    case let .color(color) where !rawParams.has(.color(color)):
-      return failed
+    case let .color(.hex(hex)):
+      let a = rawParams.has(.color(.name(Color.hexColors[hex]!)))
+      let b = rawParams.has(.color(.hex(hex)))
+      if !(a || b) { return failed }
     case .emojize where !rawParams.has(.emojize(true)): fallthrough
     case .ansi where !rawParams.has(.ansi(true)): fallthrough
     case .trim where !rawParams.has(.trim(true)):
@@ -321,16 +323,11 @@ func == (textParams: [Text.Param], rawParams: [Raw.Param]) -> Bool {
   return true
 }
 
-var runs: Int {
-  if isTravis() { return 3 }
-  return 0
-}
-
 var args: CheckerArguments {
   if isTravis() {
     return CheckerArguments(
-      maxAllowableSuccessfulTests: 500,
-      maxTestCaseSize: 500
+      maxAllowableSuccessfulTests: 200,
+      maxTestCaseSize: 200
     )
   }
 

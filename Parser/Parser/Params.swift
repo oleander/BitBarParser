@@ -8,7 +8,7 @@ extension Pro {
    Color attribute with hex or color value, i.e color=red or color=#ff00AA
    */
   static var color: P<Param> {
-    return attributeWithoutError("color", hexColor <|> regularColor, Raw.Param.color)
+    return attributeWithError("color", hexColor <|> regularColor, Raw.Param.color)
   }
 
   /**

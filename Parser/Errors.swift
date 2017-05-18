@@ -1,5 +1,3 @@
-
-//  case noSubMenusForSeparatorForHead([Raw.Head]) /* TODO: Head & Tail should conform to protocol */
 public enum MenuError {
   case duplicate([Raw.Param])
   case duplicateActions(Action, Action)
@@ -7,10 +5,8 @@ public enum MenuError {
   case invalidMenuDepth(Raw.Head, Raw.Tail, Int) /* Parent, Child, Level-- */
   case noParamsForSeparator([Raw.Param])
   case noSubMenusForSeparator([Raw.Tail])
-//  case noSubMenusForSeparatorForHead([Raw.Head]) /* TODO: Head & Tail should conform to protocol */
   case param(String, ValueError)
   case parseError(Failure)
-  // ["Args are set but not bash"
   case argumentsSetButNotBash([String])
   case eventsSetButNotBash([Event])
   case argumentsAndEventsAreSetButNotBash([String], [Event])
@@ -22,6 +18,7 @@ public enum ValueError: Equatable {
   case image(String)
   case base64OrHref(String)
   case font(String)
+  case color(String)
 
   public static func == (lhs: ValueError, rhs: ValueError) -> Bool {
     switch (lhs, rhs) {

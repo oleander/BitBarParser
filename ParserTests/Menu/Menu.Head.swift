@@ -7,15 +7,6 @@ import SwiftCheck
 extension Menu.Head: Parsable, Equatable {
   public var description: String { return output.inspected() }
 
-  var output: String {
-    switch self {
-    case let .text(text, tails):
-      return render(text) + render(tails) + "\n"
-    case let .error(messages):
-      preconditionFailure("[Error]: \(messages)")
-    }
-  }
-
   public static func == (lhs: Menu.Head, rhs: Menu.Head) -> Bool {
     switch (lhs, rhs) {
     case let (.text(t1, p1), .text(t2, p2)):
@@ -49,13 +40,21 @@ extension Menu.Head: Parsable, Equatable {
     }
   }
 
+  var output: String {
+    switch self {
+    case let .text(text, tails):
+      return render(text) + render(tails)
+    case let .error(messages):
+      preconditionFailure("[Error]: \(messages)")
+    }
+  }
+
   private func render(_ text: [Text]) -> String {
-    if text.isEmpty { return "" }
     return text.map { $0.toString([], .nop) }.joined(separator: "\n")
   }
 
   private func render(_ tails: [Menu.Tail]) -> String {
-    if tails.isEmpty { return "" }
+    if tails.isEmpty { return "\n" }
     return "\n---\n" + tails.map { $0.output }.joined()
   }
 }

@@ -32,7 +32,6 @@
 		200E9FF41EB76A9F00426BB2 /* Text.Param.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E9FF21EB76A9F00426BB2 /* Text.Param.swift */; };
 		200E9FF51EB76A9F00426BB2 /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E9FF31EB76A9F00426BB2 /* Text.swift */; };
 		200E9FF91EB76AA900426BB2 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E9FF71EB76AA900426BB2 /* Event.swift */; };
-		200E9FFA1EB76AA900426BB2 /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E9FF81EB76AA900426BB2 /* Failure.swift */; };
 		200E9FFD1EB76BEA00426BB2 /* Parsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E9FFC1EB76BEA00426BB2 /* Parsable.swift */; };
 		200E9FFF1EB76C4A00426BB2 /* Gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E9FFE1EB76C4A00426BB2 /* Gen.swift */; };
 		200EA0011EB773F100426BB2 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200EA0001EB773F100426BB2 /* Helper.swift */; };
@@ -81,7 +80,7 @@
 		200E9FBC1EB742CB00426BB2 /* Headline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Headline.swift; path = Parser/Headline.swift; sourceTree = "<group>"; };
 		200E9FBD1EB742CB00426BB2 /* Params.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Params.swift; path = Parser/Params.swift; sourceTree = "<group>"; };
 		200E9FBE1EB742CB00426BB2 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Parser.swift; path = Parser/Parser.swift; sourceTree = "<group>"; };
-		200E9FC21EB7436F00426BB2 /* Failure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Failure.swift; path = ../Parser/Failure.swift; sourceTree = "<group>"; };
+		200E9FC21EB7436F00426BB2 /* Failure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Failure.swift; sourceTree = "<group>"; };
 		200E9FC41EB7453F00426BB2 /* Image.Sort.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Image.Sort.swift; path = Image/Image.Sort.swift; sourceTree = "<group>"; };
 		200E9FC61EB75BF800426BB2 /* Raw.Tail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Raw.Tail.swift; path = Raw/Raw.Tail.swift; sourceTree = "<group>"; };
 		200E9FC81EB75C0400426BB2 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
@@ -103,7 +102,6 @@
 		200E9FF21EB76A9F00426BB2 /* Text.Param.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Text.Param.swift; path = Text/Text.Param.swift; sourceTree = "<group>"; };
 		200E9FF31EB76A9F00426BB2 /* Text.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Text.swift; path = Text/Text.swift; sourceTree = "<group>"; };
 		200E9FF71EB76AA900426BB2 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
-		200E9FF81EB76AA900426BB2 /* Failure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Failure.swift; sourceTree = "<group>"; };
 		200E9FFC1EB76BEA00426BB2 /* Parsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Parsable.swift; path = Protocol/Parsable.swift; sourceTree = "<group>"; };
 		200E9FFE1EB76C4A00426BB2 /* Gen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Gen.swift; path = Extension/Gen.swift; sourceTree = "<group>"; };
 		200EA0001EB773F100426BB2 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
@@ -256,7 +254,6 @@
 			isa = PBXGroup;
 			children = (
 				200E9FF71EB76AA900426BB2 /* Event.swift */,
-				200E9FF81EB76AA900426BB2 /* Failure.swift */,
 			);
 			name = Other;
 			sourceTree = "<group>";
@@ -307,6 +304,7 @@
 				20A1D9BA1EB6C5DA007FA0DC /* Info.plist */,
 				20A1DA061EB73DBC007FA0DC /* Result.swift */,
 				200E9FC81EB75C0400426BB2 /* Event.swift */,
+				200E9FC21EB7436F00426BB2 /* Failure.swift */,
 				2050F0991ECD227F00BD921B /* Operators.swift */,
 				2050F0951ECCFEED00BD921B /* Font.swift */,
 			);
@@ -420,7 +418,6 @@
 			children = (
 				20C3EBE71ECD5C950015F348 /* Operators.swift */,
 				200EA0001EB773F100426BB2 /* Helper.swift */,
-				200E9FC21EB7436F00426BB2 /* Failure.swift */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -692,7 +689,6 @@
 				200E9FF11EB76A9500426BB2 /* Raw.Tail.swift in Sources */,
 				200E9FD91EB76A6800426BB2 /* Action.swift in Sources */,
 				200E9FE91EB76A8500426BB2 /* Menu.Tail.swift in Sources */,
-				200E9FFA1EB76AA900426BB2 /* Failure.swift in Sources */,
 				200E9FFD1EB76BEA00426BB2 /* Parsable.swift in Sources */,
 				200E9FD81EB76A6800426BB2 /* Action.Script.swift in Sources */,
 				2050F09C1ECD23E000BD921B /* Font.swift in Sources */,

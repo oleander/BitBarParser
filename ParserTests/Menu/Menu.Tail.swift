@@ -25,12 +25,15 @@ extension Menu.Tail: Parsable, Equatable {
 
   func toString(_ level: Int) -> String {
     switch self {
+    case let .text(text, params, tails, action) where tails.isEmpty:
+      return indent(level)
+        + text.toString(params, action)
+        + "\n"
     case let .text(text, params, tails, action):
       return indent(level)
         + text.toString(params, action)
         + "\n"
         + tail(for: tails, at: level)
-        + "\n"
     case let .image(image, params, tails, .nop) where tails.isEmpty:
       return [
         indent(level),

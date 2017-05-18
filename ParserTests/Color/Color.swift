@@ -6,7 +6,7 @@ extension Color: Parsable, Arbitrary {
   public static var arbitrary: Gen<Color> {
     return [
       hexValue.map(Color.hex),
-      string.map(Color.name)
+      Array(names.keys).any.map(Color.name)
     ].one()
   }
 
@@ -28,5 +28,14 @@ extension Color: Parsable, Arbitrary {
     default:
       return false <?> "no match for \(lhs), \(rhs)"
     }
+  }
+
+  static var hexColors: [String: String] {
+    var store = [String: String]()
+    for (key, value) in Color.names {
+      store[value] = key
+    }
+
+    return store
   }
 }

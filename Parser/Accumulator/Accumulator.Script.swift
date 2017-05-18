@@ -1,6 +1,6 @@
 extension Accumulator {
   struct Script {
-    var path: String? = nil
+    var path: String?
     var args = [Int: String]()
     var events = [Event]()
 

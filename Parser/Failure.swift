@@ -12,8 +12,8 @@ public enum Failure: CustomStringConvertible {
       + "\nRemainder: \(remainder.inspected())"
       + "\nExpected: \(expected.inspected())"
       + "\nActual: \(actual.inspected())"
-    default:
-      return "TODO"
+    case let other:
+      return "Failure: \(String(describing: other))"
     }
   }
 }

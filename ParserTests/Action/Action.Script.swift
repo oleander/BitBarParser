@@ -24,7 +24,7 @@ extension Action.Script: Parsable {
     guard params.has(.bash(script.path)) else {
       return false <?> "cannot find bash=\(script.path) in \(params)"
     }
-    
+
     return script.events ==== params ^&&^ script.args ==== params
   }
 }

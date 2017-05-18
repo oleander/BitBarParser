@@ -21,15 +21,15 @@ func +| <T>(lhs: Result<[T]>, rhs: Result<T>) -> Result<[T]> {
 }
 
 func +! <T, U>(lhs: Result<T>, rhs: Result<U>) -> [MenuError] {
-  preconditionFailure("TODO")
+  return lhs.errors + rhs.errors
 }
 
 func +! <T>(lhs: Result<T>, rhs: [MenuError]) -> [MenuError] {
-  preconditionFailure("TODO")
+  return lhs.errors + rhs
 }
 
 func +! <T>(lhs: [MenuError], rhs: Result<T>) -> [MenuError] {
-  preconditionFailure("TODO")
+  return lhs + rhs.errors
 }
 
 public func reduce(_ data: String) -> Menu.Head {
@@ -40,4 +40,3 @@ public func reduce(_ data: String) -> Menu.Head {
       return .error([.parseError(error)])
    }
 }
-

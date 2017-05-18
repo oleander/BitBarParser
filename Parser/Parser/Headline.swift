@@ -1,6 +1,4 @@
 import FootlessParser
-// import Either
-
 
 enum Either<T, U> {
 	case left(T)
@@ -11,37 +9,37 @@ typealias Line = (level: Int, title: String, params: [Raw.Param])
 typealias Value<T> = Either<T, ValueError>
 
 extension Pro {
+  fileprivate enum Custom {
+    case head(Line)
+    case tail(Head)
+    case eof(Head)
+  }
   internal static let ws = zeroOrMore(whitespace)
-  static let nl = zeroOrMore(string("\n"))
   typealias Head = Raw.Head
   typealias Tail = Raw.Tail
 
   static var output: P<Head> {
-    return header(using: .node([], []))
+    return handle(.node([], []))
   }
 
-  static func header(using head: Head) -> P<Head> {
-    let aLine: P<Line?> = string("---\n") *> pure(nil)
-    let xLine: P<Line?> = { a -> Line? in a} <^> line
-    let e: P<Line?> = { a -> Line? in a} <^> (eof() *> pure(nil))
-    return (aLine <|> xLine <|> e) >>- { (maybe: Line?) in
-      if let liner = maybe {
-        return header(using: head.append(liner))
+  static func handle(_ outer: Head) -> P<Head> {
+    let aLine = Custom.head <^> line
+    let aMenu = Custom.tail <^> (string("---\n") *> menu(using: outer))
+    let aNothing: P<Custom> = pure(Custom.eof(outer)) <* eof()
+    return (aMenu <|> aLine <|> aNothing) >>- { custom in
+      switch custom {
+      case let .head(line):
+        return handle(outer.append(line))
+      case let .tail(head):
+        return pure(head)
+      case let .eof(head):
+        return pure(head)
       }
-
-      return menu(using: head)
     }
   }
 
   private static func menu(using head: Head) -> P<Head> {
     return ((head.add <^> menu) >>- menu(using:)) <|> pure(head)
-  }
-
-  // @input: Title|, output: Title, rest: "|"
-  // @input: Title---\n, output: Title, rest: ""
-  // @input: Title\n, output: Title, rest: "\n"
-  private static var title: P<String> {
-    return until(["|", "\n"], consume: false)
   }
 
   // @input: --Title|param=1, output: 1, Title, {param: 1}, rest: ""
@@ -80,13 +78,19 @@ extension Pro {
   }
 
   // @example: #ff0011
-  static var hexColor: P<Color> {
-    return quoteAnd(Color.hex <^> (string("#") *> hex) <* ws)
+  static var hexColor: P<Value<Color>> {
+    return quoteAnd({ .left(.hex($0)) } <^> (string("#") *> hex) <* ws)
   }
 
   // @example: red
-  static var regularColor: P<Color> {
-    return Color.name <^> quoteOrWord <* ws
+  static var regularColor: P<Value<Color>> {
+    return { name in
+      if let hex = Color.names[name.lowercased()] {
+        return .left(.hex(hex))
+      }
+
+      return .right(.color(name))
+    } <^> quoteOrWord <* ws
   }
 
   static var float: P<Value<Float>> {
@@ -179,14 +183,13 @@ extension Pro {
   }
 
   // @example: "A B C"
-  // OK
   static var quote: P<String> {
     // TODO: Handle first char as escaped quote, i.e \"abc (same for quoteAnd)
     return oneOf("\"\'") >>- { (char: Character) in until(String(char)) }
   }
 
   /**
-   XMenu params, i.e | terminal=false length=10
+   Menu params, i.e | terminal=false length=10
    */
   internal static var params: P<[Raw.Param]> {
     return optional(
@@ -196,7 +199,6 @@ extension Pro {
     ) <* (ws <* oneOrMore(string("\n")))
   }
 
-  // OK
   static var param: P<Param> {
     return length <|>
       alternate <|>
@@ -216,14 +218,12 @@ extension Pro {
       terminal
   }
 
-  // OK
   static func quoteAnd<T>(_ parser: P<T>) -> P<T> {
     return oneOf("\"\'") >>- { (char: Character) in
       return parser <* string(String(char))
       } <|> parser
   }
 
-  // OK
   static func toImage(forKey key: String, _ type: Image.Sort) -> P<Param> {
     let img = { (raw: String) -> Value<Image> in
       if let _ = toData(base64: raw) {
@@ -235,7 +235,7 @@ extension Pro {
       return .right(.base64OrHref(raw))
     } <^> quoteOrWord
 
-    return attributeWithError(key,img , Raw.Param.image)
+    return attributeWithError(key, img, Raw.Param.image)
   }
 
   static func toData(base64: String) -> Data? {

@@ -1,7 +1,7 @@
 struct Accumulator {
   var script: Accumulator.Script = Accumulator.Script()
-  var refresh: Bool? = nil
-  var href: String? = nil
+  var refresh: Bool?
+  var href: String?
   var events = [Event]()
   var errors = [String]()
 

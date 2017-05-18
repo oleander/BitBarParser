@@ -10,8 +10,8 @@ extension Text {
     case trim
 
     static func reduce(_ params: [Raw.Param]) -> Result<[Text.Param]> {
-      let init1: Result<Fontable> = .good((nil, nil))
-      let initState = params.reduce(init1) { acc, param in
+      let startValue: Result<Fontable> = .good((nil, nil))
+      let initState1 = params.reduce(startValue) { acc, param in
         return acc.flatMap { (acc: Fontable) -> Result<Fontable> in
           switch (acc, param) {
           /* Valid states */
@@ -30,7 +30,7 @@ extension Text {
         }
       }
 
-      let init2: Result<[Text.Param]> = initState.map { maybe -> Font? in
+      let initState2: Result<[Text.Param]> = initState1.map { maybe -> Font? in
         switch maybe {
         case let (.some(font), .some(size)):
           return .font(font, size)
@@ -49,7 +49,7 @@ extension Text {
         return []
       }
 
-      return params.reduce(init2) { acc, param in
+      return params.reduce(initState2) { acc, param in
         return acc.map { acc in
           switch param {
           case let .length(value):
@@ -66,18 +66,6 @@ extension Text {
             return acc
           }
         }
-      }
-    }
-
-    private static func initFrom(_ params: [Raw.Param]) -> [Text.Param] {
-      if hasTrim(params) { return [] }
-      return []
-    }
-
-    private static func hasTrim(_ params: [Raw.Param]) -> Bool {
-      return params.reduce(false) { acc, param in
-        if case .trim = param { return true }
-        return acc
       }
     }
 
