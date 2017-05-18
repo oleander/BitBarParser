@@ -1,7 +1,7 @@
 extension Action {
   public struct Script {
-    let path: String
-    let args: [String]
+    public let path: String
+    public let args: [String]
     private let events: [Event]
 
     public var openInTerminal: Bool {
