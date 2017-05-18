@@ -3,8 +3,8 @@ import SwiftCheck
 
 extension Raw.Param: CustomStringConvertible {
   typealias Param = Raw.Param
-
-  static let font_t = string.map(Param.font)
+  private static let manager = NSFontManager.shared()
+  static let font_t = manager.availableFontFamilies.any.map { Param.font($0.lowercased()) }
   static let size_t = float.suchThat { $0 >= 0 }.map(Param.size)
   static let length_t = natural.map(Param.length)
   static let color_t = Color.arbitrary.map(Param.color)
@@ -29,13 +29,7 @@ extension Raw.Param: CustomStringConvertible {
   }
 
   /* Background script, i.e bash='...', refresh=false, terminal=true, param1='...' */
-  static let background = [bash_t, refresh_t, Gen.pure(Param.terminal(false))].shuffle() + argument_t
-  /* Foreground script, i.e bash='...', refresh=false, terminal=false */
-  static let foreground = [bash_t, Gen.pure(Param.terminal(true))].shuffle()
-
-  /* A script, background or foreground */
-  static let script = [background, foreground].one()
-
+  static let script = [bash_t, refresh_t, terminal_t].shuffle() + argument_t
   static let clickOrRef = [[href_t, refresh_t].one()].shuffle()
 
   /* An action, i.e href='..', refresh=true */

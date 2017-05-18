@@ -15,7 +15,7 @@ class ParserTests: QuickSpec {
           case let .failure(error):
             return false <?> ("warning: Parse error: " + String(describing: error))
           }
-        }
+        }.verbose
       }
     }
   }

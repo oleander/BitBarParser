@@ -7,8 +7,8 @@ extension Raw.Tail: Arbitrary, Equatable, CustomStringConvertible {
   public var description: String {
     return output.inspected()
   }
-  typealias Tail = Raw.Tail
-  typealias Param = Raw.Param
+  public typealias Tail = Raw.Tail
+  public typealias Param = Raw.Param
 
   public static var arbitrary: Gen<Tail> {
     return Gen<(String, [Param])>.zip(string, Param.both).map {
@@ -33,7 +33,7 @@ extension Raw.Tail: Arbitrary, Equatable, CustomStringConvertible {
     case let .node(title, _, _):
       return title
     case let .error(messages):
-      return messages.joined(separator: " ")
+      preconditionFailure("[Error] \(messages)")
     }
   }
 
@@ -62,5 +62,4 @@ extension Raw.Tail: Arbitrary, Equatable, CustomStringConvertible {
   public static func ==== (lhs: Raw.Tail, rhs: Raw.Tail) -> Property {
     preconditionFailure("should not be used")
   }
-
 }

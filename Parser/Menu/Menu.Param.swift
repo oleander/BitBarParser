@@ -8,9 +8,9 @@ extension Menu {
         return params.flatMap { params in
           switch param {
           case .alternate where params.has(.alternate):
-            return .bad(["Alternate can only be defined once"])
+            return .bad([.duplicate([param])])
           case .checked where params.has(.checked):
-            return .bad(["Checked can only be defined once"])
+            return .bad([.duplicate([param])])
           case .alternate(true):
             return .good(params + [.alternate])
           case .checked(true):

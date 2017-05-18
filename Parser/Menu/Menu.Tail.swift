@@ -2,7 +2,7 @@ extension Menu {
   public enum Tail {
     case text(Text, [Param], [Tail], Action)
     case image(Image, [Param], [Tail], Action)
-    case error([String])
+    case error([MenuError])
     case separator
 
     static func reduce(_ menus: [Raw.Tail]) -> Result<[Menu.Tail]> {
@@ -13,23 +13,23 @@ extension Menu {
       switch menu {
         /* Invalid states */
       case let .node("-", params, _) where params.count != 0:
-        return .error(["Separators cannot have params, i.e ---|bash='...'"])
+        return .error([.noParamsForSeparator(params)])
       case let .node("-", _, tails) where !tails.isEmpty:
-        return .error(["Separators cannot have sub menus"])
+        return .error([.noSubMenusForSeparator(tails)])
         /* Valid states */
       case .node("-", _, _):
         return .separator
       case let .node(_, params, tails) where has(image: params):
         switch (
-          Image.reduce(params),
+          params.image,
           Menu.Param.reduce(params),
           Menu.Tail.reduce(tails),
           Action.reduce(params)
         ) {
-        case let (.good(image), .good(params), .good(tails), .good(action)):
+        case let (.some(image), .good(params), .good(tails), .good(action)):
           return .image(image, params, tails, action)
-        case let (image, params, tails, action):
-          return .error(image +! params +! tails +! action)
+        case let (_, params, tails, action):
+          return .error(params +! tails +! action)
         }
       case let .node(title, params, tails) where params.has(.dropdown(false)) && !tails.isEmpty:
         return reduce(.node(title, params, []))

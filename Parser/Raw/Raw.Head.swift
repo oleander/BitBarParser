@@ -1,35 +1,26 @@
 extension Raw {
-  enum Head {
+  public enum Head {
     case node([(String, [Param])], [Tail])
-    case error([String])
-    
+    case error([MenuError])
+
     internal func add(node: Raw.Tail, level: Int) -> Raw.Head {
       switch (self, level) {
       case let (.node(title, menus), 0):
         return .node(title, menus + [node])
       case let (.node(_, menus), _) where menus.isEmpty:
-        return failure("No more levels to go")
+        return .error([.invalidMenuDepth(self, node, level)])
       case let (.node(title, menus), _):
         return .node(
           title,
           menus.initial() + [menus.last!.add(node: node, level: level - 1)]
         )
-      default:
-        return failure("Not sure how to handle event \(node) on level \(level)")
+      case (.error, _):
+        return self
       }
     }
 
     func reduce() -> Menu.Head {
       return Menu.Head.reduce(self)
-    }
-
-    private func failure(_ message: String) -> Raw.Head {
-      switch self {
-      case let .error(messages):
-        return .error(messages + [message])
-      default:
-        return .error([message])
-      }
     }
 
     func append(_ line: Line) -> Raw.Head {
@@ -38,6 +29,15 @@ extension Raw {
         return .node(text + [(title, params)], tails)
       default:
         return self
+      }
+    }
+
+    var errors: [MenuError] {
+      switch self {
+      case let .node(pairs, _):
+        return pairs.errors.map { .param($0.0, $0.1) }
+      case let .error(messages):
+        return messages
       }
     }
   }

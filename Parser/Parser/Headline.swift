@@ -1,5 +1,14 @@
 import FootlessParser
+// import Either
+
+
+enum Either<T, U> {
+	case left(T)
+	case right(U)
+}
+
 typealias Line = (level: Int, title: String, params: [Raw.Param])
+typealias Value<T> = Either<T, ValueError>
 
 extension Pro {
   internal static let ws = zeroOrMore(whitespace)
@@ -14,13 +23,14 @@ extension Pro {
   static func header(using head: Head) -> P<Head> {
     let aLine: P<Line?> = string("---\n") *> pure(nil)
     let xLine: P<Line?> = { a -> Line? in a} <^> line
-    return (aLine <|> xLine) >>- { (maybe: Line?) in
+    let e: P<Line?> = { a -> Line? in a} <^> (eof() *> pure(nil))
+    return (aLine <|> xLine <|> e) >>- { (maybe: Line?) in
       if let liner = maybe {
         return header(using: head.append(liner))
       }
 
       return menu(using: head)
-    } <|> pure(head)
+    }
   }
 
   private static func menu(using head: Head) -> P<Head> {
@@ -43,8 +53,8 @@ extension Pro {
         return (.node(line.title, line.params, []), line.level)
       case let (_, "-", params) where params.isEmpty:
         return (.node(line.title, line.params, []), line.level - 1)
-      case (_, "-", _):
-        return (.error(["Separator can't have any params"]), line.level - 1)
+      case let (_, "-", params):
+        return (.error([.noParamsForSeparator(params)]), line.level - 1)
       default:
         return (.node(line.title, line.params, []), line.level)
       }
@@ -53,11 +63,6 @@ extension Pro {
 
   internal static var line: P<Line> {
     return curry({ ($0, $1, $2) }) <^> level <*> text <*> params
-  }
-
-  internal static var menus: P<[Raw.Tail]> {
-    return pure([])
-//    return optional(string("---\n") *> zeroOrMore(menu), otherwise: [])
   }
 
   // @input: Title\n, output: Title, \n
@@ -84,15 +89,18 @@ extension Pro {
     return Color.name <^> quoteOrWord <* ws
   }
 
-  static var float: P<Float> {
+  static var float: P<Value<Float>> {
     let das = digitsAsString
-    return curry({ a, b in "\(a).\(b)" }) <^> das <*> optional(string(".") *> das, otherwise: "0") >>- { maybe in
+    let maybeFloat = curry({ a, b in "\(a).\(b)" })
+      <^> das <*> optional(string(".") *> das, otherwise: "0")
+
+    return { maybe in
       if let float = Float(maybe) {
-        return pure(float)
+        return .left(float)
       }
 
-      return stop("Could not parse \(maybe) as a float")
-    }
+      return .right(.float(maybe))
+    } <^> maybeFloat
   }
 
   // @example: "hello" or hello
@@ -106,32 +114,25 @@ extension Pro {
     return quote <|> parser
   }
 
-  static func s(_ ss: String) -> P<String> {
-    return string(ss)
-  }
-
-  static func add(_ a: P<String>, _ b: P<String>) -> P<String> {
-    return a <* b
-  }
-
   // @example: "10" (as a string)
   static var digitsAsString: P<String> {
     return oneOrMore(digit)
   }
 
   // @example: 10
-  static var digits: P<Int> {
-    return digitsAsString >>- { maybe in
+  static var digits: P<Value<Int>> {
+    return { maybe in
       if let int = Int(maybe) {
-        return pure(int)
+        return .left(int)
       }
 
-      return stop("Could not convert \(maybe) to int")
-    }
+      return .right(.int(maybe))
+    } <^> digitsAsString
   }
 
   // One or more characters without whitespace
   // @example: Hello
+  // OK
   static var word: P<String> {
     return oneOrMore(satisfy(expect: "word") { (char: Character) in
       return String(char).rangeOfCharacter(from: CharacterSet.whitespacesAndNewlines) == nil
@@ -144,13 +145,21 @@ extension Pro {
   }
 
   // @example: font=10
-  static func attribute<T>(_ name: String, _ block: () -> P<T>) -> P<T> {
-    return attribute(string(name), block)
+  internal static func attributeWithError<T>(_ name: String, _ value: P<Value<T>>, _ block: @escaping (T) -> Raw.Param) -> P<Raw.Param> {
+    let key = string(name) *> ws *> string("=") *> ws
+    let content = { (that: Either<T, ValueError>) -> Raw.Param in
+      switch that {
+      case let .left(value):
+        return block(value)
+      case let .right(error):
+        return .error(name, error)
+      }
+     } <^> value
+    return (ws *> key *> content <* ws)
   }
 
-  // @example: font=10
-  static func attribute<T>(_ name: P<String>, _ block: () -> P<T>) -> P<T> {
-    return (ws *> (name *> ws *> string("=") *> ws) *> block() <* ws)
+  static func attributeWithoutError<T>(_ name: String, _ value: P<T>, _ block:  @escaping (T) -> Raw.Param) -> P<Raw.Param> {
+    return attributeWithError(name, Either.left <^> value, block)
   }
 
   // @example: true
@@ -170,6 +179,7 @@ extension Pro {
   }
 
   // @example: "A B C"
+  // OK
   static var quote: P<String> {
     // TODO: Handle first char as escaped quote, i.e \"abc (same for quoteAnd)
     return oneOf("\"\'") >>- { (char: Character) in until(String(char)) }
@@ -186,6 +196,7 @@ extension Pro {
     ) <* (ws <* oneOrMore(string("\n")))
   }
 
+  // OK
   static var param: P<Param> {
     return length <|>
       alternate <|>
@@ -205,44 +216,26 @@ extension Pro {
       terminal
   }
 
-  static var posNum: P<Int> {
-    return digits >>- { digit in
-      guard digit > 0 else {
-        return stop("\(digit) must be a positive number")
-      }
-
-      return pure(digit)
-    }
-  }
-
-  static func error(message: String, key: String, value: String) -> Param {
-    return .error([message, key, value].joined(separator: " "))
-  }
-
+  // OK
   static func quoteAnd<T>(_ parser: P<T>) -> P<T> {
     return oneOf("\"\'") >>- { (char: Character) in
       return parser <* string(String(char))
       } <|> parser
   }
 
+  // OK
   static func toImage(forKey key: String, _ type: Image.Sort) -> P<Param> {
-    return { raw in
-      guard let image = toImage(raw, type) else {
-        return error(message: "base64 or href", key: key, value: raw)
+    let img = { (raw: String) -> Value<Image> in
+      if let _ = toData(base64: raw) {
+        return .left(.base64(raw, type))
+      } else if let _ = URL(string: raw) {
+        return .left(.href(raw, type))
       }
 
-      return .image(image)
-      } <^> attribute(key) { quoteOrWord }
-  }
+      return .right(.base64OrHref(raw))
+    } <^> quoteOrWord
 
-  static func toImage(_ raw: String, _ type: Image.Sort) -> Image? {
-    if let _ = toData(base64: raw) {
-      return .base64(raw, type)
-    } else if let _ = URL(string: raw) {
-      return .href(raw, type)
-    }
-
-    return nil
+    return attributeWithError(key,img , Raw.Param.image)
   }
 
   static func toData(base64: String) -> Data? {

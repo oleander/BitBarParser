@@ -5,24 +5,24 @@ extension Pro {
   private static let manager = NSFontManager.shared()
   typealias Param = Raw.Param
   /**
-   XColor attribute with hex or color value, i.e color=red or color=#ff00AA
+   Color attribute with hex or color value, i.e color=red or color=#ff00AA
    */
   static var color: P<Param> {
-    return Param.color <^> ((ws *> string("color=")) *> (hexColor <|> regularColor))
+    return attributeWithoutError("color", hexColor <|> regularColor, Raw.Param.color)
   }
 
   /**
    Boolean ansi attribute, i.e ansi=false
    */
   static var ansi: P<Param> {
-    return Param.ansi <^> attribute("ansi") { bool }
+    return attributeWithoutError("ansi", bool, Param.ansi)
   }
 
   /**
    Boolean emojize attribute, i.e emojize=false
    */
   static var emojize: P<Param> {
-    return Param.emojize <^> attribute("emojize") { bool }
+    return attributeWithoutError("emojize", bool, Param.emojize)
   }
 
   /**
@@ -36,93 +36,100 @@ extension Pro {
    Quote / unquoted href attribute, i.e href="http://google.com"
    */
   static var href: P<Param> {
-    return Param.href <^> attribute("href") { quoteOrWord }
+    return attributeWithoutError("href", quoteOrWord, Param.href)
   }
 
   /**
    Quote / unquoted font attribute, i.e font="Monaco"
    */
   static var font: P<Param> {
-    return { font in
-      return .font(font)
-      // let has = manager.availableFontFamilies.some {
-      //   return $0.lowercased() == font.lowercased()
-      // }
-      //
-      // if has { return .font(font.lowercased()) }
+    let that = { (font: String) -> Value<String> in
+      let name = font.lowercased()
+      let has = manager.availableFontFamilies.any {
+        return $0.lowercased() == name
+      }
 
-      // return error(message: "not in the list of avalible fonts", key: "font", value: font)
-      } <^> attribute("font") { quoteOrWord }
+      if has { return .left(name) }
+      return .right(.font(name))
+      } <^> quoteOrWord
+
+    return attributeWithError("font", that, Raw.Param.font)
   }
 
   /**
    Unquoted size attribute as a positive int, i.e size=10
    */
   static var size: P<Param> {
-    return Param.size <^> attribute("size") { float }
+    return attributeWithError("size", float, Param.size)
   }
 
   /**
    Quote / unquoted bash attribute, i.e bash="/usr/local/bin space"
    */
   static var bash: P<Param> {
-    return Param.bash <^> attribute("bash") { quoteOrWord }
+    return attributeWithoutError("bash", quoteOrWord, Param.bash)
   }
 
   /**
    Boolean alternate attribute, i.e alternate=false
    */
   static var alternate: P<Param> {
-    return Param.alternate <^> attribute("alternate") { bool }
+    return attributeWithoutError("alternate", bool, Param.alternate)
   }
 
   /**
    Boolean checked attribute, i.e checked=true
    */
   static var checked: P<Param> {
-    return Param.checked <^> attribute("checked") { bool }
+    return attributeWithoutError("checked", bool, Param.checked)
   }
 
   /**
    Boolean trim attribute, i.e trim=false
    */
   static var trim: P<Param> {
-    return Param.trim <^> attribute("trim") { bool }
+    return attributeWithoutError("trim", bool, Param.trim)
   }
 
   /**
    Boolean dropdown attribute, i.e dropdown=false
    */
   static var dropdown: P<Param> {
-    return Param.dropdown <^> attribute("dropdown") { bool }
+    return attributeWithoutError("dropdown", bool, Param.dropdown)
   }
 
   /**
    Boolean refresh attribute, i.e refresh=false
    */
   static var refresh: P<Param> {
-    return Param.refresh <^> attribute("refresh") { bool }
+    return attributeWithoutError("refresh", bool, Param.refresh)
   }
 
   /**
    Boolean terminal attribute, i.e terminal=false
    */
   static var terminal: P<Param> {
-    return Param.terminal <^> attribute("terminal") { bool }
+    return attributeWithoutError("terminal", bool, Param.terminal)
   }
 
   /**
    Named param with a quoted / unquoted value, i.e param12="A value"
    */
   static var arg: P<Param> {
-    let key: P<Int> = string("param") *> digits
-    return ws *> (curry(Param.argument) <^> (key <* string("=")) <*> quoteOrWord) <* ws
+    return curry({ key, value in
+      switch key {
+      case let .left(key):
+        return .argument(key, value)
+      case let .right(error):
+        return .error("param", error)
+      }
+    }) <^> ((ws *> string("param")) *> digits <* string("=")) <*> (ws *> quoteOrWord <* ws)
   }
 
   /**
    Int length attribute, i.e length=11
    */
   static var length: P<Param> {
-    return Param.length <^> attribute("length") { digits }
+    return attributeWithError("length", digits, Raw.Param.length)
   }
 }

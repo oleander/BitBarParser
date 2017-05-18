@@ -65,10 +65,10 @@ extension Menu.Tail: Parsable, Equatable {
         "\n",
         tail(for: tails, at: level)
       ].joined()
-    case let .error(messages):
-      preconditionFailure("[Error] \(messages.joined(separator: "<|>"))")
     case .separator:
       return "-" + "\n"
+    case let .error(messages):
+      preconditionFailure("[Error] \(messages)")
     }
   }
 

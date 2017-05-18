@@ -4,16 +4,17 @@ import SwiftCheck
 // case node(String, [Param], [Tail])
 // case error([String])
 extension Raw.Head: Arbitrary, Equatable, CustomStringConvertible {
-  typealias Head = Raw.Head
+  public typealias Head = Raw.Head
   typealias Tail = Raw.Tail
   typealias Param = Raw.Param
 
   private static let tail = Tail.arbitrary.proliferate
   private static let text = Param.textableish
+  private static let heads = Gen<(String, [Param])>.zip(string, text).map { ($0, $1) }.proliferateNonEmpty
 
   public static var arbitrary: Gen<Head> {
-    return Gen<(String, [Param], [Tail], [Tail])>.zip(string, text, tail, tail).map { title, params, t1, t2 in
-      return Array(zip(t1, t2)).enumerated().reduce(.node([(title, params)], [])) { head, tail in
+    return Gen<([(String, [Param])], [Tail], [Tail])>.zip(heads, tail, tail).map {
+      return Array(zip($1, $2)).enumerated().reduce(.node($0, [])) { head, tail in
         return head.add(node: tail.1.0, level: tail.0).add(node: tail.1.1, level: tail.0)
       }
     }
@@ -25,7 +26,7 @@ extension Raw.Head: Arbitrary, Equatable, CustomStringConvertible {
 
   private func render(_ menus: [Raw.Tail]) -> String {
     if menus.isEmpty { return "\n" }
-    return "\n---\n" + menus.map { $0.output }.joined() + "\n"
+    return "\n---\n" + menus.map { $0.output }.joined()
   }
 
   private func render(_ params: [Raw.Param]) -> String {
@@ -35,12 +36,14 @@ extension Raw.Head: Arbitrary, Equatable, CustomStringConvertible {
 
   private var title: String {
     switch self {
+    case let .node(titles, _) where titles.isEmpty:
+      return "\n"
     case let .node(titles, _):
       return titles.map { (info: (title: String, params: [Raw.Param])) in
         return info.title.titled() + "" + render(info.params)
       }.joined(separator: "\n")
     case let .error(messages):
-      return messages.joined(separator: " ")
+      preconditionFailure("Error: \(messages)")
     }
   }
 
@@ -67,19 +70,4 @@ extension Raw.Head: Arbitrary, Equatable, CustomStringConvertible {
   public var description: String {
     return output.inspected()
   }
-}
-
-
-func == (lhs: [(String, [Raw.Param])], rhs: [(String, [Raw.Param])]) -> Bool {
-  for (index, item1) in lhs.enumerated() {
-    let item2 = rhs[index]
-    if item1.0 != item2.0 {
-      return false
-    }
-
-    if item1.1 != item2.1 {
-      return false
-    }
-  }
-  return lhs.count == rhs.count
 }

@@ -1,5 +1,5 @@
 extension Raw {
-  enum Param: Equatable {
+  public enum Param: Equatable {
     case bash(String)
     case trim(Bool)
     case dropdown(Bool)
@@ -16,7 +16,7 @@ extension Raw {
     case color(Color)
     case checked(Bool)
     case argument(Int, String)
-    case error(String)
+    case error(String, ValueError)
 
     public static func == (lhs: Raw.Param, rhs: Raw.Param) -> Bool {
       switch (lhs, rhs) {
@@ -52,6 +52,8 @@ extension Raw {
         return c1 == c2
       case let (.argument(i1, a1), .argument(i2, a2)):
         return i1 == i2 && a1 == a2
+      case let (.error(e1, v1), .error(e2, v2)):
+        return e1 == e2 && v1 == v2
       default:
         return false
       }

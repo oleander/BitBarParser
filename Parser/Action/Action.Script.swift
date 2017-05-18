@@ -1,6 +1,15 @@
 extension Action {
-  public enum Script {
-    case foreground(String, [Event])
-    case background(String, [String], [Event])
+  public struct Script {
+    let path: String
+    let args: [String]
+    let events: [Event]
+
+    var openInTerminal: Bool {
+      return events.has(.terminal)
+    }
+
+    var refreshAfterExec: Bool {
+      return events.has(.refresh)
+    }
   }
 }

@@ -20,10 +20,10 @@ extension Text {
           case let ((.none, size), .font(name)):
             return .good((name, size))
           /* Invalid states */
-          case ((_, .some), .size):
-            return .bad(["Size can't be defined twice"])
-          case ((.some, _), .font):
-            return .bad(["Font can't be defined twice"])
+          case let ((_, .some(before)), .size):
+            return .bad([.duplicate([.size(before), param])])
+          case let ((.some(before), _), .font):
+            return .bad([.duplicate([.font(before), param])])
           default:
             return .good(acc)
           }

@@ -4,6 +4,8 @@ target 'Parser' do
   platform :osx, '10.10'
 
   pod 'FootlessParser'
+  pod 'Either', git: "https://github.com/robrix/Either.git"
+
   target 'ParserTests' do
     inherit! :search_paths
     pod 'Nimble'

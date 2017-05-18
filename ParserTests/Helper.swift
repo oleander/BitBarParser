@@ -69,9 +69,9 @@ func  ~= (lhs: [Raw.Param], rhs: [Raw.Param]) -> Bool {
   return lhs == rhs
 }
 
-func  ~= (lhs: [Raw.Tail], rhs: [Raw.Tail]) -> Bool {
-  return lhs == rhs
-}
+//func  ~= (lhs: [Raw.Tail], rhs: [Raw.Tail]) -> Bool {
+//  return lhs == rhs
+//}
 
 func ==== (args: [String], params: [Raw.Param]) -> Property {
   if args.isEmpty {
@@ -136,19 +136,27 @@ func ==== (args: [String], params: [Raw.Param]) -> Property {
 
 func ==== (events: [Event], params: [Raw.Param]) -> Property {
   for param in params {
+    let failed = false <?> "param \(param) missing from events list \(events)"
     switch param {
     case let .refresh(state) where events.has(.refresh) != state:
-      return false <?> "param \(param) missing from events list \(events)"
+      return failed
+    case let .terminal(state) where events.has(.terminal) != state:
+      return failed
     default:
       break
     }
   }
 
   for event in events {
+    let failed = false <?> "event \(event) not found in \(params)"
     switch event {
     case .refresh:
       if !params.has(.refresh(true)) {
-        return false <?> "event \(event) not found in \(params)"
+        return failed
+      }
+    case .terminal:
+      if !params.has(.terminal(true)) {
+        return failed
       }
     }
   }
@@ -211,7 +219,7 @@ func ==== (menuTails: [Menu.Tail], rawTails: [Raw.Tail]) -> Property {
       return image ==== params2 ^&&^ params1 ==== params2 ^&&^ tails1 ==== tails2 ^&&^ action ==== params2
     case let (.error(m1), .error(m2)):
       return m1 ==== m2
-    case (.separator, .node("-", [], [])):
+    case let (.separator, .node("-", [], tails)) where tails.isEmpty:
       return true <?> "separator"
     default:
       return false <?> "menu tails \(menuTails) != \(rawTails)"
@@ -327,8 +335,8 @@ var args: CheckerArguments {
   }
 
   return CheckerArguments(
-    maxAllowableSuccessfulTests: 100,
-    maxTestCaseSize: 100
+    maxAllowableSuccessfulTests: 50,
+    maxTestCaseSize: 50
   )
 }
 

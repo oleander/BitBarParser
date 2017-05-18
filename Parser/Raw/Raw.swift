@@ -1,1 +1,1 @@
-enum Raw {}
+public enum Raw {}

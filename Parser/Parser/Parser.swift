@@ -1,17 +1,7 @@
 import FootlessParser
 typealias P<T> = Parser<Character, T>
 
-public func reduce(_ data: String) -> Menu.Head {
-  switch Pro.parse(Pro.output, data) {
-    case let .success(raw):
-      return raw.reduce()
-    case let .failure(error):
-      return .error([String(describing: error)])
-   }
-}
-
 class Pro {
-
   enum Result<T> {
     case success(T)
     case failure(Failure)
@@ -90,8 +80,7 @@ class Pro {
   internal static func unescape(_ value: String, what: [String]) -> String {
     return ([slash] + what).reduce(value) {
       return $0.replace(slash + $1, $1)
-    }//.replace("\\", "")
-    // return value.
+    }
   }
 
   internal static func stop<A, B>(_ message: String) -> Parser<A, B> {

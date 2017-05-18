@@ -1,4 +1,4 @@
-enum Failure: CustomStringConvertible {
+public enum Failure: CustomStringConvertible {
   case negative
   case generic(String)
   case mismatch(String, String, String, String, String)

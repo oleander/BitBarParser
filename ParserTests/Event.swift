@@ -7,6 +7,8 @@ extension Event: CustomStringConvertible {
     switch self {
     case .refresh:
       return "refresh=true"
+    case .terminal:
+      return "terminal=true"
     }
   }
 
@@ -14,6 +16,10 @@ extension Event: CustomStringConvertible {
     switch (lhs, rhs) {
     case (.refresh, .refresh):
       return true <?> "refresh"
+    case (.terminal, .terminal):
+      return true <?> "terminal"
+    default:
+      return false <?> "\(lhs) != \(rhs)"
     }
   }
 }
