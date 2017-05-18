@@ -12,7 +12,7 @@ extension Action {
       return events.has(.refresh)
     }
 
-    init(path: (String), args: [String], events: [Event]) {
+    public init(path: (String), args: [String], events: [Event]) {
       self.path = path
       self.args = args
       self.events = events
