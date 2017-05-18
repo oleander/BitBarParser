@@ -2,13 +2,13 @@ extension Action {
   public struct Script {
     let path: String
     let args: [String]
-    let events: [Event]
+    private let events: [Event]
 
-    var openInTerminal: Bool {
+    public var openInTerminal: Bool {
       return events.has(.terminal)
     }
 
-    var refreshAfterExec: Bool {
+    public var refreshAfterExec: Bool {
       return events.has(.refresh)
     }
   }
