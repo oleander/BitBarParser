@@ -194,7 +194,7 @@ extension Pro {
   internal static var params: P<[Raw.Param]> {
     return optional(
       ws *> string("|") *>
-      ws *> oneOrMore(ws *> param <* ws)
+      ws *> zeroOrMore(ws *> param <* ws)
       <* ws, otherwise: []
     ) <* (ws <* oneOrMore(string("\n")))
   }
