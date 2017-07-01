@@ -14,17 +14,6 @@ extension Menu.Param: Parsable {
     }
   }
 
-  public static func == (lhs: Menu.Param, rhs: Menu.Param) -> Bool {
-    switch (lhs, rhs) {
-    case (.alternate, .alternate):
-      return true
-    case (.checked, .checked):
-      return true
-    default:
-      return false
-    }
-  }
-
   static func ==== (lhs: Menu.Param, rhs: Menu.Param) -> Property {
     switch (lhs, rhs) {
     case (.alternate, .alternate):

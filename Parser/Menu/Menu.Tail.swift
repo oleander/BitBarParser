@@ -1,5 +1,5 @@
 extension Menu {
-  public enum Tail {
+  public enum Tail: Equatable {
     case text(Text, [Param], [Tail], Action)
     case image(Image, [Param], [Tail], Action)
     case error([MenuError])
@@ -58,6 +58,21 @@ extension Menu {
         default:
           return acc
         }
+      }
+    }
+
+    public static func == (lhs: Menu.Tail, rhs: Menu.Tail) -> Bool {
+      switch (lhs, rhs) {
+      case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
+        return t1 == t2 && p1 == p2 && m1 == m2 && x1 == x2
+      case let (.error(m1), .error(m2)):
+        return m1 == m2
+      case let (.image(t1, p1, m1, x1), .image(t2, p2, m2, x2)):
+        return t1 == t2 && p1 == p2 && m1 == m2 && x1 == x2
+      case (.separator, .separator):
+        return true
+      default:
+        return false
       }
     }
   }

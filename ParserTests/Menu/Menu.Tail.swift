@@ -4,24 +4,9 @@ import SwiftCheck
 // case image(Image, [Param], [Tail], Action)
 // case error([String])
 // case separator
-extension Menu.Tail: Parsable, Equatable {
+extension Menu.Tail: Parsable {
   public var description: String { return output.inspected() }
   var output: String { return toString(0) }
-
-  public static func == (lhs: Menu.Tail, rhs: Menu.Tail) -> Bool {
-    switch (lhs, rhs) {
-    case let (.text(t1, p1, m1, x1), .text(t2, p2, m2, x2)):
-      return t1 == t2 && p1 == p2 && m1 == m2 && x1 == x2
-    case let (.error(m1), .error(m2)):
-      return m1 == m2
-    case let (.image(t1, p1, m1, x1), .image(t2, p2, m2, x2)):
-      return t1 == t2 && p1 == p2 && m1 == m2 && x1 == x2
-    case (.separator, .separator):
-      return true
-    default:
-      return false
-    }
-  }
 
   func toString(_ level: Int) -> String {
     switch self {

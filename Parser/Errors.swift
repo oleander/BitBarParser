@@ -1,4 +1,4 @@
-public enum MenuError {
+public enum MenuError: Equatable {
   case duplicate([Raw.Param])
   case duplicateActions(Action, Action)
   case invalidSubMenuDepth(Raw.Tail, Raw.Tail, Int) /* Parent, Child, Level-- */
@@ -10,6 +10,10 @@ public enum MenuError {
   case argumentsSetButNotBash([String])
   case eventsSetButNotBash([Event])
   case argumentsAndEventsAreSetButNotBash([String], [Event])
+
+  public static func == (lhs: MenuError, rhs: MenuError) -> Bool {
+    preconditionFailure("TODO")
+  }
 }
 
 public enum ValueError: Equatable {

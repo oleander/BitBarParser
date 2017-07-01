@@ -2,17 +2,10 @@ import SwiftCheck
 @testable import Parser
 // case normal(String, [Param])
 
-extension Text: Parsable, Equatable {
+extension Text: Parsable {
   public var description: String { return output.inspected() }
   var output: String {
     return toString([], .nop)
-  }
-
-  public static func == (lhs: Text, rhs: Text) -> Bool {
-    switch (lhs, rhs) {
-    case let (.normal(t1, p1), .normal(t2, p2)):
-      return t1 == t2 && p1 == p2
-    }
   }
 
   static func ==== (lhs: Text, rhs: Text) -> Property {
